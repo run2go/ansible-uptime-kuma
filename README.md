@@ -8,15 +8,21 @@ Python version 3.7+ and Ansible version 2.9+ are required.
 
 Supported Uptime Kuma versions:
 
-| Uptime Kuma     | ansible-uptime-kuma | uptime-kuma-api |
-|-----------------|---------------------|-----------------|
-| 1.21.3 - 1.23.2 | 1.0.0 - 1.3.0       | 1.0.0 - 1.2.1   |
-| 1.17.0 - 1.21.2 | 0.1.0 - 0.14.0      | 0.1.0 - 0.13.0  |
+| Uptime Kuma                      | ansible-uptime-kuma | uptime-kuma-api                                                           |
+|----------------------------------|---------------------|---------------------------------------------------------------------------|
+| 1.21.3 - 1.23.2, 2.0.0 - 2.4.0 * | 1.0.0 - 1.3.0       | [run2go/uptime-kuma-api](https://github.com/run2go/uptime-kuma-api) 1.3.0 |
+| 1.21.3 - 1.23.2                  | 1.0.0 - 1.3.0       | 1.0.0 - 1.2.1                                                             |
+| 1.17.0 - 1.21.2                  | 0.1.0 - 0.14.0      | 0.1.0 - 0.13.0                                                            |
 
-Uptime Kuma 2.x is a breaking rewrite and is **not** supported yet, because the
-underlying [uptime-kuma-api](https://github.com/lucasheld/uptime-kuma-api) Python client this
-collection depends on hasn't been updated for it either (last release: 1.2.1, September 2023).
-2.x support is being worked on in a separate branch.
+\* Uptime Kuma 2.x support is partial and requires our
+[run2go/uptime-kuma-api](https://github.com/run2go/uptime-kuma-api) fork instead of the upstream
+PyPI package (which has no 2.x support at all - unmaintained since Sept 2023, last release 1.2.1).
+Verified against real 2.4.0: `maintenance`, `monitor_info`, `monitor` (add/edit), and `status_page`
+(get/save). Not yet verified: `notification`, `settings`, `docker_host`, `proxy`, `tag`, `api_key`,
+and status page listing (`status_page_info`'s "list all" mode hits a known
+[uptime-kuma-api bug](https://github.com/run2go/uptime-kuma-api) where its status page list cache
+doesn't refresh after adding one over an existing connection - single-status-page lookups work
+fine). See that fork's README/CHANGELOG for details.
 
 
 ## Installation
@@ -29,6 +35,11 @@ pip install uptime-kuma-api
 Alternately, you can install a specific version (e.g. `0.13.0`):
 ```shell
 pip install uptime-kuma-api==0.13.0
+```
+
+For Uptime Kuma 2.x, install our [run2go/uptime-kuma-api](https://github.com/run2go/uptime-kuma-api) fork instead (see the version table above for what's verified):
+```shell
+pip install git+https://github.com/run2go/uptime-kuma-api.git@main
 ```
 
 Then install the ansible collection itself:
