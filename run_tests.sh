@@ -18,7 +18,7 @@ modules="${@:2}"
 
 if [ ! -d "$collection_path" ]
 then
-  ansible-galaxy collection install git+https://github.com/lucasheld/ansible-uptime-kuma.git
+  ansible-galaxy collection install git+https://github.com/run2go/ansible-uptime-kuma.git
 fi
 cp -r ./{plugins,tests} "$collection_path"
 cd "$collection_path"
@@ -27,7 +27,7 @@ if [ $version ] && [ "$version" != "all" ]
 then
   versions=("$version")
 else
-  versions=(1.23.1 1.23.0 1.22.1 1.22.0 1.21.3)
+  versions=(1.23.2 1.23.1 1.23.0 1.22.1 1.22.0 1.21.3)
 fi
 
 unit_targets=""
