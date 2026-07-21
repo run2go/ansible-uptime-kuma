@@ -175,3 +175,12 @@ class TestMaintenance(ModuleTestCase):
         maintenance_status_pages = self.api.get_status_page_maintenance(maintenance_id)
         self.assertEqual([i["id"] for i in maintenance_monitors], [monitor_id])
         self.assertEqual([i["id"] for i in maintenance_status_pages], [status_page_id])
+
+        # clean up: module_test_case's setUp() doesn't clear maintenances
+        # between tests, so a leftover here would pollute maintenance_info's
+        # "list all" assertions in later test runs
+        self.params.update({
+            "state": "absent",
+        })
+        result = self.run_module(module, self.params)
+        self.assertTrue(result["changed"])

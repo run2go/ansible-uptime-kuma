@@ -1,6 +1,6 @@
 import plugins.modules.api_key as module
 from plugins.module_utils.common import get_api_key_by_name
-from .module_test_case import ModuleTestCase
+from .module_test_case import ModuleTestCase, FUTURE_EXPIRES
 
 
 class TestApiKey(ModuleTestCase):
@@ -23,7 +23,7 @@ class TestApiKey(ModuleTestCase):
         # add api key by name
         self.params.update({
             "name": "api key 1",
-            "expires": "2023-03-30 12:20:00",
+            "expires": FUTURE_EXPIRES,
             "active": True,
         })
         result = self.run_module(module, self.params)

@@ -2,7 +2,13 @@ import os
 import copy
 import unittest
 import tempfile
+from datetime import datetime, timedelta
+
 from uptime_kuma_api import UptimeKumaApi, MonitorType, DockerType, UptimeKumaException, MaintenanceStrategy
+
+# Used for api_key "expires" test fixtures - must stay in the future,
+# otherwise the created key immediately reports status "expired".
+FUTURE_EXPIRES = (datetime.now() + timedelta(days=365)).strftime("%Y-%m-%d %H:%M:%S")
 
 
 class ModuleTestCase(unittest.TestCase):
@@ -62,6 +68,16 @@ class ModuleTestCase(unittest.TestCase):
         docker_hosts = self.api.get_docker_hosts()
         for docker_host in docker_hosts:
             self.api.delete_docker_host(docker_host["id"])
+
+        # delete maintenances
+        maintenances = self.api.get_maintenances()
+        for maintenance in maintenances:
+            self.api.delete_maintenance(maintenance["id"])
+
+        # delete api keys
+        api_keys = self.api.get_api_keys()
+        for api_key in api_keys:
+            self.api.delete_api_key(api_key["id"])
 
         # login again to receive initial messages
         self.api.disconnect()
@@ -134,7 +150,7 @@ class ModuleTestCase(unittest.TestCase):
     def add_api_key(self, name="api key 1"):
         r = self.api.add_api_key(
             name=name,
-            expires="2023-03-30 12:20:00",
+            expires=FUTURE_EXPIRES,
             active=True
         )
         return r["keyID"]
