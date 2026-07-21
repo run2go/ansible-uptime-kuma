@@ -142,3 +142,36 @@ class TestMaintenance(ModuleTestCase):
         })
         result = self.run_module(module, self.params)
         self.assertTrue(result["changed"])
+
+    def test_maintenance_by_monitor_and_status_page_name(self):
+        # monitors/status_pages given by name/title must be resolved to ids
+        # instead of raising a KeyError (status pages have no "name" field)
+        monitor_id = self.add_monitor("monitor 1")
+
+        status_page_slug = "slug1"
+        self.add_status_page(status_page_slug, "status_page 1")
+        status_page_id = self.api.get_status_page(status_page_slug)["id"]
+
+        self.params.update({
+            "title": "maintenance 1",
+            "strategy": MaintenanceStrategy.MANUAL,
+            "monitors": [
+                {
+                    "name": "monitor 1"
+                }
+            ],
+            "status_pages": [
+                {
+                    "title": "status_page 1"
+                }
+            ],
+        })
+
+        result = self.run_module(module, self.params)
+        self.assertTrue(result["changed"])
+        maintenance = get_maintenance_by_title(self.api, self.params["title"])
+        maintenance_id = maintenance["id"]
+        maintenance_monitors = self.api.get_monitor_maintenance(maintenance_id)
+        maintenance_status_pages = self.api.get_status_page_maintenance(maintenance_id)
+        self.assertEqual([i["id"] for i in maintenance_monitors], [monitor_id])
+        self.assertEqual([i["id"] for i in maintenance_status_pages], [status_page_id])

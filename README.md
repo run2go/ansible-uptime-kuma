@@ -2,14 +2,21 @@
 
 This collection contains modules that allow to configure [Uptime Kuma](https://github.com/louislam/uptime-kuma) with Ansible.
 
+This is a fork of [lucasheld/ansible-uptime-kuma](https://github.com/lucasheld/ansible-uptime-kuma), which has been unmaintained since late 2023. This fork picks up the backlog of open pull requests and bug reports from the upstream repo.
+
 Python version 3.7+ and Ansible version 2.9+ are required.
 
 Supported Uptime Kuma versions:
 
 | Uptime Kuma     | ansible-uptime-kuma | uptime-kuma-api |
 |-----------------|---------------------|-----------------|
-| 1.21.3 - 1.23.2 | 1.0.0 - 1.2.0       | 1.0.0+          |
+| 1.21.3 - 1.23.2 | 1.0.0 - 1.3.0       | 1.0.0 - 1.2.1   |
 | 1.17.0 - 1.21.2 | 0.1.0 - 0.14.0      | 0.1.0 - 0.13.0  |
+
+Uptime Kuma 2.x is a breaking rewrite and is **not** supported yet, because the
+underlying [uptime-kuma-api](https://github.com/lucasheld/uptime-kuma-api) Python client this
+collection depends on hasn't been updated for it either (last release: 1.2.1, September 2023).
+2.x support is being worked on in a separate branch.
 
 
 ## Installation
@@ -110,3 +117,37 @@ Option 2 (recommended): Generate a token and create a monitor by using this toke
     url: https://google.com
     state: present
 ```
+
+## Troubleshooting
+
+### "Unsupported parameters" error on the `notification` module
+
+The `notification` module builds its provider-specific arguments (e.g. `telegramBotToken`,
+`discordWebhookUrl`) dynamically at runtime from the `uptime_kuma_api` package. If Ansible
+executes the module with a Python interpreter that doesn't have `uptime_kuma_api` installed,
+those arguments silently disappear from the module's argument spec, and you'll see a
+misleading error such as:
+
+```text
+Unsupported parameters for (lucasheld.uptime_kuma.notification) module: telegramBotToken, telegramChatID, type.
+```
+
+This means `uptime_kuma_api` is missing for the interpreter Ansible actually used to run the
+module - not that the parameter is unsupported. Check `ansible_python_interpreter` (or which
+`python3` Ansible resolves to on that host/user) and make sure `pip install uptime-kuma-api` was
+run for that same interpreter.
+
+## Development
+
+Running the test suite requires Docker, since the tests exercise the modules against real
+`louislam/uptime-kuma` containers (there are no live-server-independent mocks for the API layer).
+See `run_tests.sh` for the full matrix; in short:
+
+```shell
+python3 -m pip install -r dev-requirements.txt -r tests/unit/requirements.txt
+./run_tests.sh 1.23.2
+```
+
+A handful of pure-logic unit tests (e.g. `tests/unit/plugins/module_utils/test_object_changed.py`,
+`test_monitor_diff.py`) don't need a running Uptime Kuma instance and can be run directly with
+`ansible-test units` for quick iteration.

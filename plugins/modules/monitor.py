@@ -263,6 +263,9 @@ options:
   jsonPath:
     description: Json Query
     type: str
+  jsonPathOperator:
+    description: Operator for comparing json query to expectedResult
+    type: str
   expectedValue:
     description: Expected Value
     type: str
@@ -345,8 +348,10 @@ EXAMPLES = r'''
 RETURN = r'''
 '''
 
+import enum
 import traceback
 
+import yaml
 from ansible.module_utils.basic import AnsibleModule, missing_required_lib
 from ansible_collections.lucasheld.uptime_kuma.plugins.module_utils.common import object_changed, clear_params, \
     common_module_args, get_proxy_by_host_port, get_notification_by_name, get_monitor_by_name, clear_unset_params, \
@@ -357,6 +362,29 @@ try:
     HAS_UPTIME_KUMA_API = True
 except ImportError:
     HAS_UPTIME_KUMA_API = False
+
+
+def monitor_diff(before_monitor, new_options):
+    before_options = {}
+    after_options = {}
+    for option_key, option_value in new_options.items():
+        # id is not user-facing, exclude it from the diff view
+        if option_key == "id":
+            continue
+        if before_monitor:
+            before_option_value = before_monitor[option_key]
+            if isinstance(before_option_value, enum.Enum):
+                before_option_value = before_option_value.value
+            before_options[option_key] = before_option_value
+
+        if isinstance(option_value, enum.Enum):
+            option_value = option_value.value
+        after_options[option_key] = option_value
+
+    return {
+        "before": yaml.safe_dump(before_options) if before_options else "",
+        "after": yaml.safe_dump(after_options),
+    }
 
 
 def run(api, params, result):
@@ -421,11 +449,13 @@ def run(api, params, result):
         if not monitor:
             api.add_monitor(**options)
             result["changed"] = True
+            result["diff"] = monitor_diff({}, options)
         else:
             changed_keys = object_changed(monitor, options)
             if changed_keys:
                 api.edit_monitor(monitor["id"], **options)
                 result["changed"] = True
+                result["diff"] = monitor_diff(monitor, options)
     elif state == "absent":
         if monitor:
             api.delete_monitor(monitor["id"])
@@ -540,6 +570,7 @@ def main():
         game=dict(type="str"),
         gamedigGivenPortOnly=dict(type="bool"),
         jsonPath=dict(type="str"),
+        jsonPathOperator=dict(type="str"),
         expectedValue=dict(type="str"),
         kafkaProducerBrokers=dict(type="str"),
         kafkaProducerTopic=dict(type="str"),

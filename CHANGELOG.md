@@ -1,5 +1,18 @@
 ## Changelog
 
+### Release 1.3.0
+
+#### Features
+- add `showCertificateExpiry` to the `status_page` module (Thanks @BergCyrill)
+- add `jsonPathOperator` to the `monitor` module (Thanks @strifel)
+- add `diff` support to the `monitor` module, so `ansible-playbook --diff` shows before/after values on create/edit (Thanks @Javex)
+- clarify in the `notification` module docs that all provider options described in the [python module docs](https://uptime-kuma-api.readthedocs.io/en/latest/api.html#uptime_kuma_api.UptimeKumaApi.edit_notification) are accepted (they already were, dynamically, at runtime) (Thanks @nliechti)
+
+#### Bugfixes
+- fix `IndexError` in `object_changed()` when a desired list (e.g. `notification_names`, `accepted_statuscodes`) is longer than the existing one, and fix the mirror-image bug where a *shorter* desired list silently reported no change (#52, thanks @vdaluz, @tux22, @obfusk)
+- fix `maintenance` module raising `KeyError` when assigning status pages by name, since status pages are identified by `title`, not `name` (thanks @t4nki)
+- add `tests/unit/requirements.txt` so `ansible-test units --requirements` installs `uptime-kuma-api`/`pyotp` automatically instead of requiring a manually pre-provisioned venv
+
 ### Release 1.2.0
 
 #### Features

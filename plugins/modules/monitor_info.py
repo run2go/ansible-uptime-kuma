@@ -397,6 +397,11 @@ monitors:
       returned: always
       type: str
       sample: None
+    jsonPathOperator:
+      description: Operator for comparing json query to expectedResult
+      returned: always
+      type: str
+      sample: None
     kafkaProducerAllowAutoTopicCreation:
       description: Enable Kafka Producer Auto Topic Creation
       returned: always

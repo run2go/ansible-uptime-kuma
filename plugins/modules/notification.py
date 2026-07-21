@@ -17,7 +17,7 @@ extends_documentation_fragment:
 module: notification
 author: Lucas Held (@lucasheld)
 short_description: Manages notifications.
-description: Manages notifications.
+description: Manages notifications. All properties described in the [python module docs](https://uptime-kuma-api.readthedocs.io/en/latest/api.html#uptime_kuma_api.UptimeKumaApi.edit_notification) are allowed as args.
 
 options:
   id:

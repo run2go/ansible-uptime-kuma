@@ -99,8 +99,8 @@ EXAMPLES = r'''
       - name: monitor 1
       - name: monitor 2
     status_pages:
-      - name: status page 1
-      - name: status page 2
+      - title: status page 1
+      - title: status page 2
     state: present
 
 - name: Edit a maintenance
@@ -239,11 +239,11 @@ def run(api, params, result):
                     r = get_monitor_by_name(api, monitor_name)
                     monitor["id"] = r["id"]
 
-            # add id or name to status page
+            # add id or title to status page
             for status_page in status_pages:
                 if "id" not in status_page:
-                    status_page_name = status_page.pop("name")
-                    r = get_status_page_by(api, "name", status_page_name)
+                    status_page_title = status_page.pop("title")
+                    r = get_status_page_by(api, "title", status_page_title)
                     status_page["id"] = r["id"]
 
             # add monitors to maintenance if changed

@@ -1,0 +1,3 @@
+uptime-kuma-api
+pyotp
+packaging
